@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.missing_credentials && data.missing_credentials.length > 0) {
         credentialAlert.classList.remove("hidden");
-        credentialMessage.innerHTML = `Missing credentials: <strong>${data.missing_credentials.join(", ")}</strong>. Please set them in your local <code>.env</code> file to run live assessments.`;
+        credentialMessage.innerHTML = `Missing credentials: <strong>${data.missing_credentials.join(", ")}</strong>. Add them to your local <code>.env</code> file to run live assessments.`;
       } else {
         credentialAlert.classList.add("hidden");
       }
@@ -65,12 +65,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const dot = badgeEl.querySelector("span:first-child");
     const text = badgeEl.querySelector("span:last-child");
     text.textContent = label;
+
+    badgeEl.className = "inline-flex items-center gap-2 rounded-md border border-[#30363d] bg-[#161b22] px-2.5 py-1.5 text-[11px]";
     if (isConfigured) {
-      dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse";
-      badgeEl.className = "status-chip flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-mono bg-emerald-950/35 border border-emerald-500/25 text-emerald-300";
+      dot.className = "h-1.5 w-1.5 rounded-full bg-emerald-400";
+      text.className = "text-zinc-300";
     } else {
-      dot.className = "w-1.5 h-1.5 rounded-full bg-amber-500";
-      badgeEl.className = "status-chip flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-mono bg-amber-950/35 border border-amber-500/25 text-amber-300";
+      dot.className = "h-1.5 w-1.5 rounded-full bg-amber-400";
+      text.className = "text-amber-200";
     }
   }
 
@@ -93,8 +95,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!location || !date || !description) return;
 
     // UI Loading state
+    missionForm.setAttribute("aria-busy", "true");
     btnSubmit.disabled = true;
-    btnText.textContent = "Assessing with Google ADK...";
+    btnText.textContent = "Assessing…";
     btnSpinner.classList.remove("hidden");
     emptyState.classList.add("hidden");
     resultDossier.classList.add("hidden");
@@ -119,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Assessment request failed:", err);
       alert("Assessment request failed. Check server logs for details: " + err.message);
     } finally {
+      missionForm.setAttribute("aria-busy", "false");
       btnSubmit.disabled = false;
       btnText.textContent = "Assess shoot readiness";
       btnSpinner.classList.add("hidden");
@@ -129,8 +133,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleAssessmentError(data) {
     if (data.error_type === "missing_credentials") {
       credentialAlert.classList.remove("hidden");
-      credentialMessage.innerHTML = `<strong>${data.message}</strong><br><span class="text-xs text-zinc-400 mt-1 block">To run live assessments, add your keys to <code>.env</code> in the project root.</span>`;
-      credentialAlert.scrollIntoView({ behavior: "smooth" });
+      credentialMessage.innerHTML = `<strong>${escapeHtml(data.message)}</strong><br><span class="mt-1 block text-xs text-zinc-500">Add the required keys to <code>.env</code> in the project root.</span>`;
+      credentialAlert.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       alert("Error: " + (data.message || "Unknown error occurred"));
     }
@@ -148,14 +152,14 @@ document.addEventListener("DOMContentLoaded", () => {
     summaryText.textContent = data.summary || "Assessment complete.";
 
     if (status === "GO") {
-      badgeStatus.className = "px-3.5 py-1 rounded-lg text-sm font-extrabold tracking-wider uppercase bg-emerald-500/15 text-emerald-300 border border-emerald-500/25";
-      statusBanner.className = "cinema-card rounded-2xl p-6 border-l-4 !border-l-emerald-500";
+      badgeStatus.className = "rounded-md border border-emerald-700/70 bg-emerald-950/40 px-2.5 py-1 text-xs font-semibold text-emerald-200";
+      statusBanner.className = "surface rounded-lg border-l-4 border-l-emerald-500 p-5 sm:p-6";
     } else if (status === "CONDITIONAL GO") {
-      badgeStatus.className = "px-3.5 py-1 rounded-lg text-sm font-extrabold tracking-wider uppercase bg-amber-500/15 text-amber-300 border border-amber-500/25";
-      statusBanner.className = "cinema-card rounded-2xl p-6 border-l-4 !border-l-amber-500";
+      badgeStatus.className = "rounded-md border border-amber-700/70 bg-amber-950/40 px-2.5 py-1 text-xs font-semibold text-amber-200";
+      statusBanner.className = "surface rounded-lg border-l-4 border-l-amber-500 p-5 sm:p-6";
     } else {
-      badgeStatus.className = "px-3.5 py-1 rounded-lg text-sm font-extrabold tracking-wider uppercase bg-rose-500/15 text-rose-300 border border-rose-500/25";
-      statusBanner.className = "cinema-card rounded-2xl p-6 border-l-4 !border-l-rose-500";
+      badgeStatus.className = "rounded-md border border-rose-700/70 bg-rose-950/40 px-2.5 py-1 text-xs font-semibold text-rose-200";
+      statusBanner.className = "surface rounded-lg border-l-4 border-l-rose-500 p-5 sm:p-6";
     }
 
     // Blockers
@@ -164,13 +168,13 @@ document.addEventListener("DOMContentLoaded", () => {
       blockersCard.classList.remove("hidden");
       data.blockers.forEach((b) => {
         const div = document.createElement("div");
-        div.className = "p-4 rounded-xl bg-rose-950/15 border border-rose-500/15 text-xs text-zinc-300";
+        div.className = "surface-muted rounded-md p-4 text-sm";
         div.innerHTML = `
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5">
-            <span class="font-bold text-rose-300">${escapeHtml(b.title)}</span>
-            ${b.required_lead_time_hours ? `<span class="font-mono text-[10px] text-zinc-500">${b.required_lead_time_hours}h lead time required</span>` : ''}
+          <div class="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between">
+            <span class="font-semibold text-rose-200">${escapeHtml(b.title)}</span>
+            ${b.required_lead_time_hours ? `<span class="shrink-0 text-xs text-zinc-500">${b.required_lead_time_hours}h lead time required</span>` : ''}
           </div>
-          <p class="mt-1.5 leading-5 text-zinc-400">${escapeHtml(b.reason)}</p>
+          <p class="mt-2 leading-6 text-zinc-400">${escapeHtml(b.reason)}</p>
           ${renderSources(b.sources)}
         `;
         blockersList.appendChild(div);
@@ -185,14 +189,14 @@ document.addEventListener("DOMContentLoaded", () => {
       risksCard.classList.remove("hidden");
       data.risks.forEach((r) => {
         const div = document.createElement("div");
-        div.className = "p-4 rounded-xl bg-zinc-900/45 border border-white/[0.06] text-xs text-zinc-300";
+        div.className = "surface-muted rounded-md p-4 text-sm";
         div.innerHTML = `
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5">
-            <span class="font-bold text-zinc-200">${escapeHtml(r.title)}</span>
-            <span class="w-fit px-2 py-0.5 rounded text-[9px] font-mono ${getSeverityClass(r.severity)}">${escapeHtml(r.severity || 'MEDIUM')}</span>
+          <div class="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between">
+            <span class="font-semibold text-zinc-200">${escapeHtml(r.title)}</span>
+            <span class="w-fit rounded-md border px-2 py-0.5 text-[10px] font-medium ${getSeverityClass(r.severity)}">${escapeHtml(r.severity || 'MEDIUM')}</span>
           </div>
-          <p class="mt-1.5 leading-5 text-zinc-400">${escapeHtml(r.description)}</p>
-          <div class="mt-2.5 text-zinc-300"><span class="font-semibold text-zinc-200">Mitigation:</span> ${escapeHtml(r.mitigation)}</div>
+          <p class="mt-2 leading-6 text-zinc-400">${escapeHtml(r.description)}</p>
+          <p class="mt-2 leading-6 text-zinc-300"><span class="font-medium text-zinc-200">Mitigation:</span> ${escapeHtml(r.mitigation)}</p>
           ${renderSources(r.sources)}
         `;
         risksList.appendChild(div);
@@ -207,10 +211,10 @@ document.addEventListener("DOMContentLoaded", () => {
       conditionsCard.classList.remove("hidden");
       data.conditions.forEach((c) => {
         const div = document.createElement("div");
-        div.className = "p-4 rounded-xl bg-blue-950/15 border border-blue-500/15 text-xs text-zinc-300";
+        div.className = "surface-muted rounded-md p-4 text-sm";
         div.innerHTML = `
-          <div class="font-bold text-blue-300">${escapeHtml(c.condition)}</div>
-          <p class="mt-1.5 leading-5 text-zinc-400">${escapeHtml(c.action_required)}</p>
+          <div class="font-semibold text-blue-200">${escapeHtml(c.condition)}</div>
+          <p class="mt-2 leading-6 text-zinc-400">${escapeHtml(c.action_required)}</p>
           ${renderSources(c.sources)}
         `;
         conditionsList.appendChild(div);
@@ -224,10 +228,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (data.recommended_actions && data.recommended_actions.length > 0) {
       data.recommended_actions.forEach((act, idx) => {
         const li = document.createElement("li");
-        li.className = "flex items-start gap-3 p-3 rounded-xl bg-zinc-900/40 border border-white/[0.055]";
+        li.className = "flex gap-3 border-b border-[#30363d] py-3 last:border-b-0";
         li.innerHTML = `
-          <span class="w-5 h-5 shrink-0 rounded-md bg-indigo-500/15 text-indigo-300 flex items-center justify-center font-mono text-[9px] font-bold mt-px">${String(idx + 1).padStart(2, '0')}</span>
-          <span class="leading-5 text-zinc-300">${escapeHtml(act)}</span>
+          <span class="w-5 shrink-0 font-mono text-xs text-zinc-600">${idx + 1}.</span>
+          <span class="leading-6 text-zinc-300">${escapeHtml(act)}</span>
         `;
         actionsList.appendChild(li);
       });
@@ -236,33 +240,33 @@ document.addEventListener("DOMContentLoaded", () => {
     // Evidence Cards
     evidenceList.innerHTML = "";
     if (data.evidence && data.evidence.length > 0) {
-      evidenceCount.textContent = `${data.evidence.length} source document${data.evidence.length === 1 ? '' : 's'}`;
+      evidenceCount.textContent = `${data.evidence.length} source${data.evidence.length === 1 ? '' : 's'}`;
       data.evidence.forEach((ev) => {
         const div = document.createElement("div");
-        div.className = "p-4 rounded-xl bg-zinc-900/55 border border-white/[0.06] text-xs text-zinc-400 space-y-2.5";
+        div.className = "surface-muted rounded-md p-4 text-sm";
 
         let excerptsHtml = "";
         if (ev.excerpts && ev.excerpts.length > 0) {
-          excerptsHtml = `<div class="p-3 rounded-lg bg-black/25 border border-white/[0.05] font-mono text-[10px] leading-5 text-zinc-400 space-y-1.5">
-            ${ev.excerpts.map(ex => `<p>“${escapeHtml(ex)}”</p>`).join("")}
+          excerptsHtml = `<div class="mt-3 border-l-2 border-[#30363d] pl-3 text-xs leading-5 text-zinc-500">
+            ${ev.excerpts.map(ex => `<p class="mb-1 last:mb-0">${escapeHtml(ex)}</p>`).join("")}
           </div>`;
         }
 
         div.innerHTML = `
           <div class="flex items-start justify-between gap-3">
-            <a href="${escapeHtml(ev.url)}" target="_blank" rel="noopener noreferrer" class="font-semibold leading-5 text-emerald-400 hover:text-emerald-300 hover:underline break-words min-w-0">
+            <a href="${escapeHtml(ev.url)}" target="_blank" rel="noopener noreferrer" class="min-w-0 break-words font-medium leading-5 text-blue-400 hover:underline">
               ${escapeHtml(ev.title || ev.url)} ↗
             </a>
-            ${ev.search_id ? `<span class="shrink-0 font-mono text-[9px] text-zinc-700">${escapeHtml(ev.search_id)}</span>` : ''}
+            ${ev.search_id ? `<span class="shrink-0 text-[10px] text-zinc-600">${escapeHtml(ev.search_id)}</span>` : ''}
           </div>
-          <div class="text-[10px] leading-4 text-zinc-600 font-mono break-words">Query: ${escapeHtml(ev.query)}</div>
+          ${ev.query ? `<div class="mt-2 break-words text-xs leading-5 text-zinc-500">Query: ${escapeHtml(ev.query)}</div>` : ''}
           ${excerptsHtml}
         `;
         evidenceList.appendChild(div);
       });
     } else {
       evidenceCount.textContent = "0 sources";
-      evidenceList.innerHTML = `<div class="text-xs text-zinc-600 italic p-3 rounded-xl border border-dashed border-zinc-800">No direct search evidence recorded.</div>`;
+      evidenceList.innerHTML = `<div class="rounded-md border border-dashed border-[#30363d] p-4 text-sm text-zinc-500">No direct search evidence recorded.</div>`;
     }
 
     resultDossier.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -271,19 +275,19 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderSources(sources) {
     if (!sources || sources.length === 0) return "";
     return `
-      <div class="mt-3 pt-2.5 border-t border-white/[0.05] flex flex-wrap gap-x-2 gap-y-1 text-[9px]">
-        <span class="text-zinc-600 uppercase tracking-wider">Sources</span>
-        ${sources.map(s => `<a href="${escapeHtml(s)}" target="_blank" rel="noopener noreferrer" class="text-emerald-400/90 hover:text-emerald-300 hover:underline break-all">${escapeHtml(s)}</a>`).join("")}
+      <div class="mt-3 border-t border-[#30363d] pt-3 text-xs">
+        <span class="mr-2 text-zinc-600">Sources:</span>
+        ${sources.map(s => `<a href="${escapeHtml(s)}" target="_blank" rel="noopener noreferrer" class="mr-2 break-all text-blue-400 hover:underline">${escapeHtml(s)}</a>`).join("")}
       </div>
     `;
   }
 
   function getSeverityClass(sev) {
     const s = String(sev).toUpperCase();
-    if (s === "CRITICAL") return "bg-rose-500/15 text-rose-300 border border-rose-500/25";
-    if (s === "HIGH") return "bg-amber-500/15 text-amber-300 border border-amber-500/25";
-    if (s === "MEDIUM") return "bg-yellow-500/15 text-yellow-300 border border-yellow-500/25";
-    return "bg-zinc-800 text-zinc-400 border border-zinc-700";
+    if (s === "CRITICAL") return "border-rose-700/70 bg-rose-950/40 text-rose-200";
+    if (s === "HIGH") return "border-orange-700/70 bg-orange-950/40 text-orange-200";
+    if (s === "MEDIUM") return "border-amber-700/70 bg-amber-950/40 text-amber-200";
+    return "border-[#30363d] bg-[#161b22] text-zinc-400";
   }
 
   function escapeHtml(text) {
