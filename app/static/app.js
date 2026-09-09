@@ -59,6 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
     credentialAlert.classList.add("hidden");
     previewNotice.classList.remove("hidden");
     previewScenarioLabel.textContent = `Scenario: ${getPreviewLabel(scenario)}`;
+    setPreviewBadge(statusBadgeGemini, "Gemini · not used in preview");
+    setPreviewBadge(statusBadgeParallel, "Parallel Search · not used in preview");
     btnSubmit.disabled = true;
     btnText.textContent = "Preview mode";
     assessmentHelp.textContent = "Synthetic preview is active; no live agent or search calls will run.";
@@ -124,6 +126,15 @@ document.addEventListener("DOMContentLoaded", () => {
       dot.className = "h-1.5 w-1.5 rounded-full bg-amber-400";
       text.className = "text-amber-200";
     }
+  }
+
+  function setPreviewBadge(badgeEl, label) {
+    const dot = badgeEl.querySelector("span:first-child");
+    const text = badgeEl.querySelector("span:last-child");
+    badgeEl.className = "inline-flex items-center gap-2 rounded-md border border-[#30363d] bg-[#161b22] px-2.5 py-1.5 text-[11px]";
+    dot.className = "h-1.5 w-1.5 rounded-full bg-blue-400";
+    text.className = "text-zinc-400";
+    text.textContent = label;
   }
 
   // 2. Load Demo Mission
@@ -298,11 +309,34 @@ document.addEventListener("DOMContentLoaded", () => {
         const div = document.createElement("div");
         div.className = "surface-muted rounded-md p-4 text-sm";
 
-        let excerptsHtml = "";
-        if (ev.excerpts && ev.excerpts.length > 0) {
-          excerptsHtml = `<div class="mt-3 border-l-2 border-[#30363d] pl-3 text-xs leading-5 text-zinc-500">
-            ${ev.excerpts.map(ex => `<p class="mb-1 last:mb-0">${escapeHtml(ex)}</p>`).join("")}
-          </div>`;
+        const excerptCount = Array.isArray(ev.excerpts) ? ev.excerpts.length : 0;
+        const hasDetails = Boolean(ev.query) || excerptCount > 0;
+        let detailsHtml = "";
+
+        if (hasDetails) {
+          const queryHtml = ev.query
+            ? `<div class="break-words text-xs leading-5 text-zinc-500"><span class="text-zinc-600">Query:</span> ${escapeHtml(ev.query)}</div>`
+            : "";
+          const excerptsHtml = excerptCount > 0
+            ? `<div class="mt-3 border-l-2 border-[#30363d] pl-3 text-xs leading-5 text-zinc-500">
+                ${ev.excerpts.map(ex => `<p class="mb-1 last:mb-0">${escapeHtml(ex)}</p>`).join("")}
+              </div>`
+            : "";
+          const detailCountLabel = excerptCount > 0
+            ? `${excerptCount} excerpt${excerptCount === 1 ? '' : 's'}`
+            : "Search context";
+
+          detailsHtml = `
+            <details class="mt-3 border-t border-[#30363d] pt-3">
+              <summary class="flex cursor-pointer items-center justify-between gap-3 text-xs font-medium text-zinc-400 hover:text-zinc-300 focus:outline-none focus:ring-2 focus:ring-blue-500/30">
+                <span>View evidence details</span>
+                <span class="shrink-0 font-normal text-zinc-600">${detailCountLabel}</span>
+              </summary>
+              <div class="pt-3">
+                ${queryHtml}
+                ${excerptsHtml}
+              </div>
+            </details>`;
         }
 
         div.innerHTML = `
@@ -312,8 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </a>
             ${ev.search_id ? `<span class="shrink-0 text-[10px] text-zinc-600">${escapeHtml(ev.search_id)}</span>` : ''}
           </div>
-          ${ev.query ? `<div class="mt-2 break-words text-xs leading-5 text-zinc-500">Query: ${escapeHtml(ev.query)}</div>` : ''}
-          ${excerptsHtml}
+          ${detailsHtml}
         `;
         evidenceList.appendChild(div);
       });
@@ -327,12 +360,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderSources(sources) {
     if (!sources || sources.length === 0) return "";
+    const multipleSources = sources.length > 1;
     return `
       <div class="mt-3 border-t border-[#30363d] pt-3 text-xs">
         <span class="mr-2 text-zinc-600">Sources:</span>
-        ${sources.map(s => `<a href="${escapeHtml(s)}" target="_blank" rel="noopener noreferrer" class="mr-2 break-all text-blue-400 hover:underline">${escapeHtml(s)}</a>`).join("")}
+        ${sources.map((source, idx) => {
+          const label = getSourceLabel(source, idx, multipleSources);
+          return `<a href="${escapeHtml(source)}" target="_blank" rel="noopener noreferrer" class="mr-3 text-blue-400 hover:underline" title="${escapeHtml(source)}">${escapeHtml(label)} ↗</a>`;
+        }).join("")}
       </div>
     `;
+  }
+
+  function getSourceLabel(source, index, multipleSources) {
+    try {
+      const hostname = new URL(source).hostname.replace(/^www\./, "");
+      return multipleSources ? `${hostname} ${index + 1}` : hostname;
+    } catch (err) {
+      return `Source ${index + 1}`;
+    }
   }
 
   function getSeverityClass(sev) {

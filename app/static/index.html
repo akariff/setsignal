@@ -118,7 +118,7 @@
             </div>
 
             <div class="border-t border-[#30363d] pt-5">
-              <button id="btnSubmit" type="submit" aria-describedby="assessmentHelp" class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#238636] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#2ea043] focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+              <button id="btnSubmit" type="submit" aria-describedby="assessmentHelp" class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#1f6feb] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#388bfd] focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
                 <span id="btnText">Assess shoot readiness</span>
                 <svg id="btnSpinner" class="hidden h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -194,14 +194,6 @@
             <div id="blockersList" class="space-y-3"></div>
           </section>
 
-          <section id="risksCard" class="surface rounded-lg p-5 sm:p-6">
-            <div class="mb-4 border-b border-[#30363d] pb-3">
-              <h4 class="text-sm font-semibold text-amber-300">Operational risks</h4>
-              <p class="mt-1 text-xs text-zinc-500">Issues that may affect feasibility, safety or schedule.</p>
-            </div>
-            <div id="risksList" class="space-y-3"></div>
-          </section>
-
           <section id="conditionsCard" class="surface rounded-lg p-5 sm:p-6">
             <div class="mb-4 border-b border-[#30363d] pb-3">
               <h4 class="text-sm font-semibold text-blue-300">Conditions before clearance</h4>
@@ -218,11 +210,19 @@
             <ol id="actionsList" class="space-y-2 text-sm text-zinc-300"></ol>
           </section>
 
+          <section id="risksCard" class="surface rounded-lg p-5 sm:p-6">
+            <div class="mb-4 border-b border-[#30363d] pb-3">
+              <h4 class="text-sm font-semibold text-amber-300">Operational risks</h4>
+              <p class="mt-1 text-xs text-zinc-500">Issues that may affect feasibility, safety or schedule.</p>
+            </div>
+            <div id="risksList" class="space-y-3"></div>
+          </section>
+
           <section id="evidenceCard" class="surface rounded-lg p-5 sm:p-6">
             <div class="mb-4 flex flex-col gap-1 border-b border-[#30363d] pb-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h4 class="text-sm font-semibold text-white">Source evidence</h4>
-                <p class="mt-1 text-xs text-zinc-500">Live grounding sources used during the assessment.</p>
+                <p class="mt-1 text-xs text-zinc-500">Grounding sources retained for this assessment.</p>
               </div>
               <span id="evidenceCount" class="text-xs text-zinc-500"></span>
             </div>
