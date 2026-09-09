@@ -103,8 +103,8 @@ def parallel_search_tool(objective: str, search_queries: List[str]) -> Dict[str,
 
 
 def evaluate_readiness_rules(
-    findings: List[Dict[str, Any]],
-    operational_risks: Optional[List[Dict[str, Any]]] = None
+    findings: str,
+    operational_risks: str = "[]"
 ) -> Dict[str, Any]:
     """Generic deterministic readiness evaluation engine.
 
@@ -117,20 +117,45 @@ def evaluate_readiness_rules(
     into this engine from search evidence. The engine applies deterministic rules.
 
     Args:
-        findings: List of structured findings extracted from search evidence.
-        operational_risks: Optional additional identified risks (e.g. weather, logistics).
+        findings: JSON string (or list) of structured findings extracted from search evidence.
+        operational_risks: JSON string (or list) of optional additional identified risks.
 
     Returns:
         Structured evaluation containing status ('GO', 'CONDITIONAL GO', 'NO-GO'),
         score (0-100), blockers, conditions, risks, and recommended actions.
     """
+    import json
+
+    # Handle string or list inputs safely
+    if isinstance(findings, str):
+        try:
+            parsed_findings = json.loads(findings)
+        except Exception:
+            parsed_findings = []
+    elif isinstance(findings, list):
+        parsed_findings = findings
+    else:
+        parsed_findings = []
+
+    if isinstance(operational_risks, str):
+        try:
+            parsed_risks = json.loads(operational_risks)
+        except Exception:
+            parsed_risks = []
+    elif isinstance(operational_risks, list):
+        parsed_risks = operational_risks
+    else:
+        parsed_risks = []
+
     blockers: List[Dict[str, Any]] = []
     conditions: List[Dict[str, Any]] = []
     risks: List[Dict[str, Any]] = []
     recommended_actions: List[str] = []
 
     # 1. Evaluate extracted regulatory and operational findings
-    for finding in findings:
+    for finding in parsed_findings:
+        if not isinstance(finding, dict):
+            continue
         category = finding.get("category", "general")
         req_name = finding.get("requirement", "Compliance Requirement")
         description = finding.get("description", "")
@@ -214,19 +239,29 @@ def evaluate_readiness_rules(
                 })
 
     # 2. Ingest additional operational hazards / risks
-    if operational_risks:
-        for r in operational_risks:
-            risks.append({
-                "title": r.get("title", "Operational Risk"),
-                "severity": r.get("severity", "MEDIUM").upper(),
-                "category": r.get("category", "logistics"),
-                "description": r.get("description", ""),
-                "mitigation": r.get("mitigation", "Implement standard safety protocol."),
-                "sources": r.get("sources", [])
-            })
-            rec = r.get("mitigation")
-            if rec and rec not in recommended_actions:
-                recommended_actions.append(rec)
+    if parsed_risks:
+        for r in parsed_risks:
+            if isinstance(r, dict):
+                risks.append({
+                    "title": r.get("title", "Operational Risk"),
+                    "severity": r.get("severity", "MEDIUM").upper(),
+                    "category": r.get("category", "logistics"),
+                    "description": r.get("description", ""),
+                    "mitigation": r.get("mitigation", "Implement standard safety protocol."),
+                    "sources": r.get("sources", [])
+                })
+                rec = r.get("mitigation")
+                if rec and rec not in recommended_actions:
+                    recommended_actions.append(rec)
+            elif isinstance(r, str):
+                risks.append({
+                    "title": "Operational Hazard",
+                    "severity": "MEDIUM",
+                    "category": "logistics",
+                    "description": r,
+                    "mitigation": "Implement standard safety protocol.",
+                    "sources": []
+                })
 
     # 3. Deterministic overall readiness evaluation
     if blockers:

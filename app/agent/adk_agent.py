@@ -68,11 +68,11 @@ OPERATIONAL WORKFLOW:
 """
 
 
-def create_setsignal_agent() -> Agent:
+def create_setsignal_agent(model_name: Optional[str] = None) -> Agent:
     """Build and configure the SetSignal ADK root agent."""
     return Agent(
         name="setsignal_root_agent",
-        model=config.GEMINI_MODEL,
+        model=model_name or config.GEMINI_MODEL,
         instruction=SETSIGNAL_INSTRUCTION,
         tools=[parallel_search_tool, evaluate_readiness_rules]
     )
@@ -126,36 +126,64 @@ Please analyze this mission, conduct live Parallel Search queries for the local 
     agent_final_text: str = ""
     recorded_findings: list = []
 
-    # Stream ADK execution events
-    async for event in runner.run_async(
-        user_id=user_id,
-        session_id=session_id,
-        new_message=user_message
-    ):
-        # Inspect tool calls and tool responses
-        if hasattr(event, "get_function_responses"):
-            responses = event.get_function_responses()
-            for resp in responses:
-                resp_name = getattr(resp, "name", "")
-                resp_response = getattr(resp, "response", {})
-                if resp_name == "evaluate_readiness_rules":
-                    latest_rules_evaluation = resp_response
-                    logger.info("Captured evaluate_readiness_rules response from ADK tool execution")
+    # Stream ADK execution events with retry for transient API errors
+    max_retries = 3
+    for attempt in range(1, max_retries + 1):
+        try:
+            async for event in runner.run_async(
+                user_id=user_id,
+                session_id=session_id,
+                new_message=user_message
+            ):
+                # Inspect tool calls and tool responses
+                if hasattr(event, "get_function_responses"):
+                    responses = event.get_function_responses()
+                    for resp in responses:
+                        resp_name = getattr(resp, "name", "")
+                        resp_response = getattr(resp, "response", {})
+                        if resp_name == "evaluate_readiness_rules":
+                            latest_rules_evaluation = resp_response
+                            logger.info("Captured evaluate_readiness_rules response from ADK tool execution")
 
-        if hasattr(event, "get_function_calls"):
-            calls = event.get_function_calls()
-            for call in calls:
-                call_name = getattr(call, "name", "")
-                call_args = getattr(call, "args", {})
-                if call_name == "evaluate_readiness_rules":
-                    raw_findings = call_args.get("findings", [])
-                    recorded_findings = raw_findings
+                if hasattr(event, "get_function_calls"):
+                    calls = event.get_function_calls()
+                    for call in calls:
+                        call_name = getattr(call, "name", "")
+                        call_args = getattr(call, "args", {})
+                        if call_name == "evaluate_readiness_rules":
+                            raw_findings = call_args.get("findings", [])
+                            if isinstance(raw_findings, str):
+                                try:
+                                    raw_findings = json.loads(raw_findings)
+                                except Exception:
+                                    raw_findings = []
+                            recorded_findings = raw_findings
 
-        # Capture final agent response text
-        if event.content and event.content.parts:
-            for part in event.content.parts:
-                if hasattr(part, "text") and part.text:
-                    agent_final_text += part.text
+                # Capture final agent response text
+                if event.content and event.content.parts:
+                    for part in event.content.parts:
+                        if hasattr(part, "text") and part.text:
+                            agent_final_text += part.text
+
+            # If we reached here without exception, break retry loop
+            break
+        except Exception as exc:
+            err_str = str(exc)
+            # If default model exceeds daily Free Tier quota, fall back to gemini-3.5-flash
+            if ("RESOURCE_EXHAUSTED" in err_str or "429" in err_str) and agent.model != "gemini-3.5-flash":
+                logger.warning("Primary model %s quota reached. Falling back to gemini-3.5-flash...", agent.model)
+                agent = create_setsignal_agent(model_name="gemini-3.5-flash")
+                runner = Runner(agent=agent, app_name=app_name, session_service=session_service)
+                continue
+
+            if ("503" in err_str or "UNAVAILABLE" in err_str) and attempt < max_retries:
+                wait_secs = attempt * 3
+                logger.warning("Transient Gemini API error (attempt %d/%d): %s. Backing off for %ds...", attempt, max_retries, exc, wait_secs)
+                import asyncio
+                await asyncio.sleep(wait_secs)
+                continue
+            logger.exception("ADK Agent runner failed: %s", exc)
+            raise
 
     # Extract all real search evidence captured during execution
     collected_evidence = get_collected_evidence()
