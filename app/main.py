@@ -5,7 +5,10 @@ orchestrated via Google Agent Development Kit (google-adk), Google Gemini,
 and Parallel Search SDK.
 """
 
+import asyncio
 import logging
+import time
+from collections import deque
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
@@ -20,6 +23,34 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 )
 logger = logging.getLogger("setsignal.main")
+
+# Soft abuse guard for live assessments. This is intentionally generous for judging.
+# Cloud Run is also capped at 2 instances, so sustained throughput is bounded further.
+LIVE_ASSESSMENT_LIMIT_PER_HOUR = 30
+_LIVE_ASSESSMENT_WINDOW_SECONDS = 60 * 60
+_live_assessment_timestamps = deque()
+_live_assessment_lock = asyncio.Lock()
+
+
+async def _reserve_live_assessment_slot() -> int | None:
+    """Reserve one live-assessment slot, returning Retry-After seconds when full."""
+    now = time.monotonic()
+    cutoff = now - _LIVE_ASSESSMENT_WINDOW_SECONDS
+
+    async with _live_assessment_lock:
+        while _live_assessment_timestamps and _live_assessment_timestamps[0] <= cutoff:
+            _live_assessment_timestamps.popleft()
+
+        if len(_live_assessment_timestamps) >= LIVE_ASSESSMENT_LIMIT_PER_HOUR:
+            retry_after = _LIVE_ASSESSMENT_WINDOW_SECONDS - (
+                now - _live_assessment_timestamps[0]
+            )
+            return max(1, int(retry_after) + 1)
+
+        _live_assessment_timestamps.append(now)
+
+    return None
+
 
 app = FastAPI(
     title="SetSignal",
@@ -39,6 +70,7 @@ async def health_check():
         "missing_credentials": missing_creds,
         "gemini_model": config.GEMINI_MODEL,
         "ui_preview_enabled": config.ENABLE_UI_PREVIEW,
+        "live_assessment_limit_per_hour_per_instance": LIVE_ASSESSMENT_LIMIT_PER_HOUR,
         "orchestrator": "google-adk",
         "search_sdk": "parallel-web>=1.0.1"
     }
@@ -82,6 +114,20 @@ async def assess_shoot(mission: ShootMissionInput):
                     "PARALLEL_API_KEY": "Get a Parallel Search API key at https://platform.parallel.ai/"
                 }
             }
+        )
+
+    retry_after = await _reserve_live_assessment_slot()
+    if retry_after is not None:
+        logger.warning("Live assessment rate limit reached; retry_after=%ss", retry_after)
+        return JSONResponse(
+            status_code=429,
+            headers={"Retry-After": str(retry_after)},
+            content={
+                "status": "error",
+                "error_type": "rate_limited",
+                "message": "Live assessment capacity is temporarily limited. Please try again later.",
+                "retry_after_seconds": retry_after,
+            },
         )
 
     try:
