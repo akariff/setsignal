@@ -1,0 +1,8 @@
+fastapi>=0.141.0
+uvicorn[standard]>=0.52.0
+google-adk>=2.8.0
+google-genai>=2.22.0
+parallel-web>=1.0.1
+python-dotenv>=1.2.0
+pydantic>=2.13.0
+pytest>=8.0.0
