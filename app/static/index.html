@@ -3,86 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#09090b">
-  <title>SetSignal — AI Production-Readiness Agent for Film Shoots</title>
+  <meta name="theme-color" content="#0d1117">
+  <title>SetSignal — Production Readiness Assessment</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Plus Jakarta Sans', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace']
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    :root {
-      color-scheme: dark;
+    :root { color-scheme: dark; }
+    html { background: #0d1117; }
+    body { min-height: 100vh; background: #0d1117; }
+    ::selection { background: rgba(59, 130, 246, 0.30); color: #fff; }
+    .surface { background: #161b22; border: 1px solid #30363d; }
+    .surface-muted { background: #0d1117; border: 1px solid #30363d; }
+    .field {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      color: #f0f6fc;
     }
-    html {
-      background: #09090b;
+    .field:hover { border-color: #484f58; }
+    .field:focus {
+      border-color: #2f81f7;
+      box-shadow: 0 0 0 3px rgba(47, 129, 247, 0.18);
+      outline: none;
     }
-    body {
-      min-height: 100vh;
-      background:
-        radial-gradient(circle at 12% -10%, rgba(245, 158, 11, 0.10), transparent 31rem),
-        radial-gradient(circle at 88% 2%, rgba(99, 102, 241, 0.13), transparent 34rem),
-        linear-gradient(180deg, #111218 0%, #09090b 52%, #09090b 100%);
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.22;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-      background-size: 40px 40px;
-      mask-image: linear-gradient(to bottom, black, transparent 72%);
-    }
-    ::selection {
-      background: rgba(245, 158, 11, 0.28);
-      color: #fff;
-    }
-    .cinema-card {
-      background: linear-gradient(180deg, rgba(24, 24, 31, 0.92), rgba(15, 15, 20, 0.92));
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.24);
-    }
-    .cinema-input {
-      background: rgba(8, 9, 13, 0.82);
-      border: 1px solid rgba(255, 255, 255, 0.10);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
-    }
-    .cinema-input:hover {
-      border-color: rgba(255, 255, 255, 0.18);
-    }
-    .cinema-input:focus {
-      border-color: rgba(99, 102, 241, 0.9);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.14);
-    }
-    .status-chip {
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
-    }
-    .metric-card {
-      background: linear-gradient(180deg, rgba(39, 39, 48, 0.44), rgba(24, 24, 27, 0.24));
-      border: 1px solid rgba(255, 255, 255, 0.07);
-    }
-    .soft-divider {
-      border-color: rgba(255, 255, 255, 0.065);
-    }
-    .section-kicker {
-      letter-spacing: 0.14em;
-    }
+    .field::placeholder { color: #6e7681; }
+    summary::-webkit-details-marker { display: none; }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         scroll-behavior: auto !important;
@@ -93,242 +36,185 @@
     }
   </style>
 </head>
-<body class="text-zinc-100 font-sans antialiased">
-  <header class="sticky top-0 z-40 border-b border-white/[0.06] bg-zinc-950/75 backdrop-blur-xl">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="relative w-10 h-10 shrink-0 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-orange-950/30 ring-1 ring-white/10">
-          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-          <span class="absolute -right-1 -bottom-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-zinc-950"></span>
-        </div>
+<body class="font-sans text-zinc-100 antialiased">
+  <header class="border-b border-[#30363d] bg-[#0d1117]">
+    <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <div class="flex min-w-0 items-center gap-3">
+        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#30363d] bg-[#161b22] text-sm font-bold text-zinc-100" aria-hidden="true">S</div>
         <div class="min-w-0">
-          <div class="flex items-center gap-2">
-            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">SetSignal</h1>
-            <span class="hidden sm:inline-flex px-2 py-0.5 text-[9px] font-bold uppercase section-kicker bg-white/[0.045] text-zinc-400 border border-white/[0.07] rounded-md">Production Intelligence</span>
+          <div class="flex items-baseline gap-2">
+            <h1 class="text-base font-semibold text-white">SetSignal</h1>
+            <span class="hidden text-xs text-zinc-500 sm:inline">Production readiness</span>
           </div>
-          <p class="text-[11px] sm:text-xs text-zinc-500 truncate">Grounded shoot-readiness decisions before the call sheet becomes a crisis.</p>
+          <p class="truncate text-xs text-zinc-500">Grounded permit, lead-time and operational checks for film shoots</p>
         </div>
       </div>
 
-      <div class="hidden lg:flex items-center gap-2">
-        <div id="statusBadgeGemini" class="status-chip flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-mono bg-zinc-900/90 border border-zinc-800 text-zinc-400">
-          <span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
+      <div class="hidden items-center gap-2 lg:flex" aria-label="Service status">
+        <div id="statusBadgeGemini" role="status" aria-live="polite" class="inline-flex items-center gap-2 rounded-md border border-[#30363d] bg-[#161b22] px-2.5 py-1.5 text-[11px] text-zinc-400">
+          <span class="h-1.5 w-1.5 rounded-full bg-zinc-600"></span>
           <span>Gemini · checking</span>
         </div>
-        <div id="statusBadgeParallel" class="status-chip flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-mono bg-zinc-900/90 border border-zinc-800 text-zinc-400">
-          <span class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
+        <div id="statusBadgeParallel" role="status" aria-live="polite" class="inline-flex items-center gap-2 rounded-md border border-[#30363d] bg-[#161b22] px-2.5 py-1.5 text-[11px] text-zinc-400">
+          <span class="h-1.5 w-1.5 rounded-full bg-zinc-600"></span>
           <span>Parallel Search · checking</span>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
-    <section class="mb-6 sm:mb-8">
-      <div class="flex flex-col xl:flex-row xl:items-end xl:justify-between gap-5">
-        <div class="max-w-3xl">
-          <div class="flex items-center gap-2 text-[10px] font-bold uppercase section-kicker text-amber-400/90 mb-3">
-            <span class="w-8 h-px bg-amber-400/70"></span>
-            <span>AI production-readiness workspace</span>
-          </div>
-          <h2 class="text-2xl sm:text-3xl lg:text-[2.15rem] leading-tight font-extrabold tracking-tight text-white">
-            Know what can stop the shoot <span class="text-zinc-500">before you roll.</span>
-          </h2>
-          <p class="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
-            SetSignal turns a location, call time and production scope into a grounded readiness decision with blockers, lead-time risks, required actions and source evidence.
-          </p>
-        </div>
-        <div class="grid grid-cols-3 gap-2 sm:gap-3 xl:w-[430px]">
-          <div class="metric-card rounded-xl px-3 py-3">
-            <div class="text-[9px] font-bold uppercase section-kicker text-zinc-500">Grounding</div>
-            <div class="mt-1 text-xs font-semibold text-zinc-200">Live web evidence</div>
-          </div>
-          <div class="metric-card rounded-xl px-3 py-3">
-            <div class="text-[9px] font-bold uppercase section-kicker text-zinc-500">Decision</div>
-            <div class="mt-1 text-xs font-semibold text-zinc-200">Deterministic rules</div>
-          </div>
-          <div class="metric-card rounded-xl px-3 py-3">
-            <div class="text-[9px] font-bold uppercase section-kicker text-zinc-500">Output</div>
-            <div class="mt-1 text-xs font-semibold text-zinc-200">GO / conditional / stop</div>
-          </div>
-        </div>
-      </div>
-    </section>
+  <main class="mx-auto max-w-7xl px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
+    <div class="mb-7 max-w-3xl">
+      <h2 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Production readiness assessment</h2>
+      <p class="mt-2 text-sm leading-6 text-zinc-400">
+        Check a planned shoot for permit requirements, lead-time constraints, operational risks and the evidence supporting the decision.
+      </p>
+    </div>
 
-    <div id="credentialAlert" class="hidden mb-6 cinema-card rounded-2xl p-4 sm:p-5 !border-amber-500/25 !bg-amber-950/15">
-      <div class="flex items-start gap-3">
-        <div class="p-2 rounded-xl bg-amber-500/10 text-amber-400 mt-0.5 ring-1 ring-amber-500/10">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-        </div>
-        <div class="flex-1 text-sm min-w-0">
-          <h4 class="font-semibold text-amber-300">Live agent credentials required</h4>
-          <p class="text-zinc-400 mt-1 leading-relaxed" id="credentialMessage">
-            SetSignal requires Gemini and Parallel credentials for live assessment and grounding operations.
-          </p>
-          <div class="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-            <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-xs font-semibold text-amber-400 hover:text-amber-300">Gemini API key <span class="ml-1">↗</span></a>
-            <a href="https://platform.parallel.ai/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-xs font-semibold text-amber-400 hover:text-amber-300">Parallel API key <span class="ml-1">↗</span></a>
+    <div id="credentialAlert" role="alert" class="surface mb-6 hidden rounded-lg border-amber-700/60 p-4">
+      <div class="flex gap-3">
+        <div class="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-amber-400" aria-hidden="true"></div>
+        <div class="min-w-0 text-sm">
+          <h3 class="font-semibold text-amber-200">Live credentials required</h3>
+          <p id="credentialMessage" class="mt-1 leading-6 text-zinc-400">SetSignal requires Gemini and Parallel credentials for live assessment and grounding operations.</p>
+          <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+            <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">Gemini API key ↗</a>
+            <a href="https://platform.parallel.ai/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">Parallel API key ↗</a>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-      <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-24">
-        <section class="cinema-card rounded-2xl overflow-hidden">
-          <div class="px-5 sm:px-6 pt-5 sm:pt-6 pb-4 border-b soft-divider">
-            <div class="flex items-start justify-between gap-4">
-              <div>
-                <div class="text-[9px] font-bold uppercase section-kicker text-indigo-400 mb-1.5">Mission input</div>
-                <h3 class="text-base font-bold text-white">Shoot specification</h3>
-                <p class="text-xs text-zinc-500 mt-1">Give the agent enough operational detail to evaluate the mission.</p>
-              </div>
-              <button id="btnLoadDemo" type="button" class="shrink-0 px-3 py-2 text-[11px] font-semibold text-amber-300 bg-amber-500/[0.08] hover:bg-amber-500/[0.14] border border-amber-500/20 rounded-xl transition-all flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                <span>Demo</span>
-              </button>
+    <div class="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
+      <div class="space-y-4 lg:col-span-5">
+        <section class="surface rounded-lg">
+          <div class="flex items-start justify-between gap-4 border-b border-[#30363d] px-5 py-4 sm:px-6">
+            <div>
+              <h3 class="text-sm font-semibold text-white">Shoot details</h3>
+              <p class="mt-1 text-xs text-zinc-500">Provide enough detail to identify location-specific requirements.</p>
             </div>
+            <button id="btnLoadDemo" type="button" class="shrink-0 rounded-md border border-[#30363d] bg-[#21262d] px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-[#30363d] focus:outline-none focus:ring-2 focus:ring-blue-500/40">
+              Load example
+            </button>
           </div>
 
-          <form id="missionForm" class="p-5 sm:p-6 space-y-5">
+          <form id="missionForm" aria-busy="false" class="space-y-5 p-5 sm:p-6">
             <div>
-              <div class="flex items-center justify-between gap-3 mb-2">
-                <label for="inputLocation" class="text-[10px] font-bold uppercase section-kicker text-zinc-400">01 · Shoot location</label>
-                <span class="text-[10px] text-zinc-600">City + specific area</span>
-              </div>
-              <input id="inputLocation" type="text" required autocomplete="off" placeholder="e.g. Downtown Los Angeles, CA" class="cinema-input w-full px-4 py-3 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none transition">
+              <label for="inputLocation" class="block text-sm font-medium text-zinc-200">Shoot location</label>
+              <p class="mb-2 mt-1 text-xs text-zinc-500">Use a city plus the specific district, street or venue where possible.</p>
+              <input id="inputLocation" type="text" required autocomplete="off" placeholder="Downtown Los Angeles, CA" class="field w-full rounded-md px-3 py-2.5 text-sm transition-colors">
             </div>
 
             <div>
-              <div class="flex items-center justify-between gap-3 mb-2">
-                <label for="inputDate" class="text-[10px] font-bold uppercase section-kicker text-zinc-400">02 · Shoot date / call time</label>
-                <span class="text-[10px] text-zinc-600">Lead time matters</span>
-              </div>
-              <input id="inputDate" type="text" required autocomplete="off" placeholder="e.g. Tomorrow, 6:00 PM Call Time" class="cinema-input w-full px-4 py-3 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none transition">
+              <label for="inputDate" class="block text-sm font-medium text-zinc-200">Shoot date and call time</label>
+              <p class="mb-2 mt-1 text-xs text-zinc-500">Timing is used to evaluate permit and approval lead times.</p>
+              <input id="inputDate" type="text" required autocomplete="off" placeholder="Tomorrow, 6:00 PM call time" class="field w-full rounded-md px-3 py-2.5 text-sm transition-colors">
             </div>
 
             <div>
-              <div class="flex items-center justify-between gap-3 mb-2">
-                <label for="inputDescription" class="text-[10px] font-bold uppercase section-kicker text-zinc-400">03 · Operational scope</label>
-                <span class="text-[10px] text-zinc-600">Include special activities</span>
-              </div>
-              <textarea id="inputDescription" rows="6" required placeholder="Describe extras, drone work, road control, generator power, pyrotechnics, stunts, noise, public-space use, parking or other operational constraints..." class="cinema-input w-full px-4 py-3 rounded-xl text-sm leading-6 text-zinc-100 placeholder-zinc-600 outline-none transition resize-none"></textarea>
+              <label for="inputDescription" class="block text-sm font-medium text-zinc-200">Operational scope</label>
+              <p class="mb-2 mt-1 text-xs text-zinc-500">Include activities that could trigger additional approvals or safety controls.</p>
+              <textarea id="inputDescription" rows="6" required placeholder="For example: exterior night shoot, 50 extras, drone footage, temporary road control and generator power." class="field w-full resize-none rounded-md px-3 py-2.5 text-sm leading-6 transition-colors"></textarea>
             </div>
 
-            <button id="btnSubmit" type="submit" class="group w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 hover:from-indigo-500 hover:via-blue-500 hover:to-indigo-500 shadow-lg shadow-indigo-950/40 ring-1 ring-white/10 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
-              <svg class="w-4 h-4 text-indigo-100 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-              <span id="btnText">Assess shoot readiness</span>
-              <svg id="btnSpinner" class="hidden animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </button>
-
-            <p class="text-[10px] leading-4 text-zinc-600 text-center">Assessment combines agent reasoning, live search evidence and deterministic readiness rules.</p>
+            <div class="border-t border-[#30363d] pt-5">
+              <button id="btnSubmit" type="submit" aria-describedby="assessmentHelp" class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#238636] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#2ea043] focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+                <span id="btnText">Assess shoot readiness</span>
+                <svg id="btnSpinner" class="hidden h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </button>
+              <p id="assessmentHelp" class="mt-2 text-xs leading-5 text-zinc-500">Runs live agent and search calls when credentials are configured.</p>
+            </div>
           </form>
         </section>
 
-        <section class="cinema-card rounded-2xl p-5 text-xs text-zinc-400">
-          <div class="flex items-center justify-between gap-3 mb-4">
-            <div>
-              <div class="text-[9px] font-bold uppercase section-kicker text-zinc-500">Runtime</div>
-              <div class="mt-1 font-semibold text-zinc-300">Agent architecture</div>
-            </div>
-            <span class="px-2 py-1 rounded-lg bg-emerald-500/[0.08] text-emerald-400 border border-emerald-500/15 text-[9px] font-bold uppercase tracking-wider">Cloud Run ready</span>
-          </div>
-          <div class="space-y-0 font-mono text-[10px]">
-            <div class="flex items-center justify-between gap-4 py-2.5 border-b soft-divider"><span class="text-zinc-600">Orchestrator</span><span class="text-zinc-300 text-right">Google ADK · Root Agent</span></div>
-            <div class="flex items-center justify-between gap-4 py-2.5 border-b soft-divider"><span class="text-zinc-600">Model</span><span id="architectureModel" class="text-zinc-300 text-right">Configured Gemini model</span></div>
-            <div class="flex items-center justify-between gap-4 py-2.5 border-b soft-divider"><span class="text-zinc-600">Grounding</span><span class="text-zinc-300 text-right">Parallel Search SDK</span></div>
-            <div class="flex items-center justify-between gap-4 pt-2.5"><span class="text-zinc-600">Decision layer</span><span class="text-zinc-300 text-right">Deterministic rules</span></div>
-          </div>
-        </section>
+        <details class="surface rounded-lg">
+          <summary class="flex cursor-pointer items-center justify-between gap-3 px-5 py-4 text-sm font-medium text-zinc-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500/40">
+            <span>Runtime details</span>
+            <span class="text-xs text-zinc-500">View</span>
+          </summary>
+          <dl class="border-t border-[#30363d] px-5 py-3 text-xs">
+            <div class="flex justify-between gap-4 border-b border-[#30363d] py-2"><dt class="text-zinc-500">Orchestrator</dt><dd class="text-right text-zinc-300">Google ADK · Root Agent</dd></div>
+            <div class="flex justify-between gap-4 border-b border-[#30363d] py-2"><dt class="text-zinc-500">Model</dt><dd id="architectureModel" class="text-right text-zinc-300">Configured Gemini model</dd></div>
+            <div class="flex justify-between gap-4 border-b border-[#30363d] py-2"><dt class="text-zinc-500">Grounding</dt><dd class="text-right text-zinc-300">Parallel Search SDK</dd></div>
+            <div class="flex justify-between gap-4 py-2"><dt class="text-zinc-500">Decision layer</dt><dd class="text-right text-zinc-300">Deterministic rules</dd></div>
+          </dl>
+        </details>
       </div>
 
-      <div class="lg:col-span-7 space-y-5">
-        <section id="progressCard" class="hidden cinema-card rounded-2xl p-5 sm:p-6 !border-indigo-500/25">
-          <div class="flex items-center justify-between gap-3 mb-5">
-            <div>
-              <div class="flex items-center gap-2 text-[10px] font-bold uppercase section-kicker text-indigo-400">
-                <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-60"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-400"></span></span>
-                Agent running
-              </div>
-              <h3 class="mt-1.5 text-base font-bold text-white">Building the readiness decision</h3>
-            </div>
-            <span class="text-[10px] font-mono text-zinc-600">LIVE PIPELINE</span>
+      <div class="space-y-4 lg:col-span-7">
+        <section id="progressCard" role="status" aria-live="polite" class="surface hidden rounded-lg p-5 sm:p-6">
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 animate-pulse rounded-full bg-blue-400" aria-hidden="true"></span>
+            <h3 class="text-sm font-semibold text-white">Assessment in progress</h3>
           </div>
-          <div class="grid gap-2.5 font-mono text-[11px]">
-            <div id="step1" class="metric-card flex items-center gap-3 rounded-xl px-3.5 py-3 text-zinc-300"><span class="w-6 h-6 shrink-0 rounded-lg bg-indigo-500/15 text-indigo-300 flex items-center justify-center text-[10px] font-bold">01</span><span>Google ADK parses the mission, schedule and operational scope</span></div>
-            <div id="step2" class="metric-card flex items-center gap-3 rounded-xl px-3.5 py-3 text-zinc-300"><span class="w-6 h-6 shrink-0 rounded-lg bg-indigo-500/15 text-indigo-300 flex items-center justify-center text-[10px] font-bold">02</span><span>Parallel Search queries relevant municipal and permit sources</span></div>
-            <div id="step3" class="metric-card flex items-center gap-3 rounded-xl px-3.5 py-3 text-zinc-300"><span class="w-6 h-6 shrink-0 rounded-lg bg-indigo-500/15 text-indigo-300 flex items-center justify-center text-[10px] font-bold">03</span><span>Gemini extracts grounded constraints, lead times and requirements</span></div>
-            <div id="step4" class="metric-card flex items-center gap-3 rounded-xl px-3.5 py-3 text-zinc-300"><span class="w-6 h-6 shrink-0 rounded-lg bg-indigo-500/15 text-indigo-300 flex items-center justify-center text-[10px] font-bold">04</span><span>Rules engine resolves GO, CONDITIONAL GO or NO-GO</span></div>
+          <ol class="mt-4 space-y-3 text-sm text-zinc-400">
+            <li id="step1" class="flex gap-3"><span class="w-5 shrink-0 font-mono text-xs text-zinc-600">1.</span><span>Parse the shoot location, timing and operational scope.</span></li>
+            <li id="step2" class="flex gap-3"><span class="w-5 shrink-0 font-mono text-xs text-zinc-600">2.</span><span>Search relevant municipal, permitting and operational sources.</span></li>
+            <li id="step3" class="flex gap-3"><span class="w-5 shrink-0 font-mono text-xs text-zinc-600">3.</span><span>Extract grounded requirements, lead times and constraints.</span></li>
+            <li id="step4" class="flex gap-3"><span class="w-5 shrink-0 font-mono text-xs text-zinc-600">4.</span><span>Apply readiness rules and produce the final decision.</span></li>
+          </ol>
+        </section>
+
+        <section id="emptyState" class="surface rounded-lg p-6 sm:p-8">
+          <h3 class="text-base font-semibold text-white">No assessment yet</h3>
+          <p class="mt-2 max-w-xl text-sm leading-6 text-zinc-400">Enter the shoot details and run an assessment. The result will show the readiness decision first, followed by blockers, conditions, recommended actions and source evidence.</p>
+          <div class="mt-5 border-t border-[#30363d] pt-4 text-xs text-zinc-500">
+            Expected output: GO, CONDITIONAL GO or NO-GO with a readiness score and supporting evidence.
           </div>
         </section>
 
-        <section id="emptyState" class="cinema-card rounded-2xl overflow-hidden">
-          <div class="px-6 sm:px-8 pt-8 sm:pt-10 pb-7 text-center border-b soft-divider">
-            <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center text-zinc-400 mb-4 ring-1 ring-white/[0.06] shadow-xl">
-              <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        <div id="resultDossier" class="hidden space-y-4">
+          <section id="statusBanner" role="status" aria-live="polite" class="surface rounded-lg border-l-4 p-5 sm:p-6">
+            <div class="flex flex-wrap items-center gap-3">
+              <span id="badgeStatus" class="rounded-md border px-2.5 py-1 text-xs font-semibold"></span>
+              <span class="text-sm text-zinc-400">Readiness score <strong id="scoreDisplay" class="font-semibold text-white"></strong><span class="text-zinc-600">/100</span></span>
             </div>
-            <div class="text-[9px] font-bold uppercase section-kicker text-zinc-600 mb-2">Awaiting mission</div>
-            <h3 class="text-lg font-bold text-zinc-200">Your readiness dossier will appear here</h3>
-            <p class="text-sm leading-6 text-zinc-500 max-w-lg mx-auto mt-2">Enter the shoot details or load the demo mission. SetSignal will surface the decision, hard stops, operational risks, actions and the evidence behind them.</p>
-          </div>
-          <div class="grid sm:grid-cols-3 gap-px bg-white/[0.05]">
-            <div class="bg-zinc-950/50 px-5 py-4"><div class="text-[9px] font-bold uppercase section-kicker text-emerald-500/80">Evidence</div><div class="text-xs text-zinc-400 mt-1">Grounded source trail</div></div>
-            <div class="bg-zinc-950/50 px-5 py-4"><div class="text-[9px] font-bold uppercase section-kicker text-amber-500/80">Constraints</div><div class="text-xs text-zinc-400 mt-1">Lead-time & permit risks</div></div>
-            <div class="bg-zinc-950/50 px-5 py-4"><div class="text-[9px] font-bold uppercase section-kicker text-indigo-400/80">Decision</div><div class="text-xs text-zinc-400 mt-1">Actionable readiness call</div></div>
-          </div>
-        </section>
-
-        <div id="resultDossier" class="hidden space-y-5">
-          <section id="statusBanner" class="cinema-card rounded-2xl p-6 border-l-4">
-            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <div>
-                <div class="text-[9px] font-bold uppercase section-kicker text-zinc-500 mb-2">Readiness decision</div>
-                <div class="flex flex-wrap items-center gap-3">
-                  <span id="badgeStatus" class="px-3.5 py-1 rounded-lg text-sm font-extrabold tracking-wider uppercase"></span>
-                  <span class="text-xs font-mono text-zinc-500">Confidence score <span id="scoreDisplay" class="ml-1 font-bold text-white"></span><span class="text-zinc-600"> / 100</span></span>
-                </div>
-                <h3 class="text-lg font-bold text-white mt-3">Production clearance assessment</h3>
-              </div>
-              <div class="hidden sm:flex w-10 h-10 rounded-xl bg-white/[0.035] border border-white/[0.06] items-center justify-center text-zinc-500">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-              </div>
-            </div>
-            <p id="summaryText" class="text-sm text-zinc-300 mt-4 leading-6 border-t soft-divider pt-4"></p>
+            <h3 class="mt-4 text-base font-semibold text-white">Assessment summary</h3>
+            <p id="summaryText" class="mt-2 text-sm leading-6 text-zinc-300"></p>
           </section>
 
-          <section id="blockersCard" class="cinema-card rounded-2xl p-5 sm:p-6 !border-rose-500/25">
-            <div class="flex items-center justify-between gap-3 mb-4">
-              <div class="flex items-center gap-2.5 text-rose-400"><span class="w-8 h-8 rounded-xl bg-rose-500/10 flex items-center justify-center ring-1 ring-rose-500/10"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span><div><div class="text-[9px] font-bold uppercase section-kicker text-rose-400/70">Hard stops</div><h4 class="text-sm font-bold text-rose-300">Critical blockers</h4></div></div>
+          <section id="blockersCard" class="surface rounded-lg p-5 sm:p-6">
+            <div class="mb-4 border-b border-[#30363d] pb-3">
+              <h4 class="text-sm font-semibold text-rose-300">Critical blockers</h4>
+              <p class="mt-1 text-xs text-zinc-500">Hard stops that prevent the shoot from proceeding as planned.</p>
             </div>
             <div id="blockersList" class="space-y-3"></div>
           </section>
 
-          <section id="risksCard" class="cinema-card rounded-2xl p-5 sm:p-6 !border-amber-500/20">
-            <div class="flex items-center gap-2.5 text-amber-400 mb-4"><span class="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center ring-1 ring-amber-500/10"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></span><div><div class="text-[9px] font-bold uppercase section-kicker text-amber-400/70">Operational exposure</div><h4 class="text-sm font-bold text-amber-300">Risks & hazards</h4></div></div>
+          <section id="risksCard" class="surface rounded-lg p-5 sm:p-6">
+            <div class="mb-4 border-b border-[#30363d] pb-3">
+              <h4 class="text-sm font-semibold text-amber-300">Operational risks</h4>
+              <p class="mt-1 text-xs text-zinc-500">Issues that may affect feasibility, safety or schedule.</p>
+            </div>
             <div id="risksList" class="space-y-3"></div>
           </section>
 
-          <section id="conditionsCard" class="cinema-card rounded-2xl p-5 sm:p-6 !border-blue-500/20">
-            <div class="flex items-center gap-2.5 text-blue-400 mb-4"><span class="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center ring-1 ring-blue-500/10"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span><div><div class="text-[9px] font-bold uppercase section-kicker text-blue-400/70">Before clearance</div><h4 class="text-sm font-bold text-blue-300">Mandatory conditions</h4></div></div>
+          <section id="conditionsCard" class="surface rounded-lg p-5 sm:p-6">
+            <div class="mb-4 border-b border-[#30363d] pb-3">
+              <h4 class="text-sm font-semibold text-blue-300">Conditions before clearance</h4>
+              <p class="mt-1 text-xs text-zinc-500">Actions or approvals required before the shoot can proceed.</p>
+            </div>
             <div id="conditionsList" class="space-y-3"></div>
           </section>
 
-          <section id="actionsCard" class="cinema-card rounded-2xl p-5 sm:p-6">
-            <div class="flex items-center gap-2.5 mb-4"><span class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center ring-1 ring-indigo-500/10"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg></span><div><div class="text-[9px] font-bold uppercase section-kicker text-indigo-400/70">Next moves</div><h4 class="text-sm font-bold text-zinc-200">Production action checklist</h4></div></div>
-            <ul id="actionsList" class="space-y-2 text-xs text-zinc-300"></ul>
+          <section id="actionsCard" class="surface rounded-lg p-5 sm:p-6">
+            <div class="mb-4 border-b border-[#30363d] pb-3">
+              <h4 class="text-sm font-semibold text-white">Recommended actions</h4>
+              <p class="mt-1 text-xs text-zinc-500">Prioritized next steps from the assessment.</p>
+            </div>
+            <ol id="actionsList" class="space-y-2 text-sm text-zinc-300"></ol>
           </section>
 
-          <section id="evidenceCard" class="cinema-card rounded-2xl p-5 sm:p-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
-              <div class="flex items-center gap-2.5"><span class="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center ring-1 ring-emerald-500/10"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg></span><div><div class="text-[9px] font-bold uppercase section-kicker text-emerald-400/70">Grounding trail</div><h4 class="text-sm font-bold text-zinc-200">Live source evidence</h4></div></div>
-              <span id="evidenceCount" class="text-[10px] font-mono text-zinc-600 sm:text-right"></span>
+          <section id="evidenceCard" class="surface rounded-lg p-5 sm:p-6">
+            <div class="mb-4 flex flex-col gap-1 border-b border-[#30363d] pb-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h4 class="text-sm font-semibold text-white">Source evidence</h4>
+                <p class="mt-1 text-xs text-zinc-500">Live grounding sources used during the assessment.</p>
+              </div>
+              <span id="evidenceCount" class="text-xs text-zinc-500"></span>
             </div>
             <div id="evidenceList" class="space-y-3"></div>
           </section>
@@ -336,9 +222,8 @@
       </div>
     </div>
 
-    <footer class="mt-8 sm:mt-10 py-5 border-t soft-divider flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-[10px] text-zinc-600">
-      <span>SetSignal · Production-readiness decision support</span>
-      <span class="font-mono">Google ADK · Gemini · Parallel Search</span>
+    <footer class="mt-8 border-t border-[#30363d] pt-5 text-xs text-zinc-600">
+      SetSignal · Decision support only. Verify critical permit and safety requirements with the responsible authority.
     </footer>
   </main>
 
