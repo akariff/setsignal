@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnSubmit = document.getElementById("btnSubmit");
   const btnText = document.getElementById("btnText");
   const btnSpinner = document.getElementById("btnSpinner");
+  const assessmentHelp = document.getElementById("assessmentHelp");
 
   // Status and feedback elements
   const credentialAlert = document.getElementById("credentialAlert");
@@ -17,6 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusBadgeGemini = document.getElementById("statusBadgeGemini");
   const statusBadgeParallel = document.getElementById("statusBadgeParallel");
   const architectureModel = document.getElementById("architectureModel");
+  const previewNotice = document.getElementById("previewNotice");
+  const previewScenarioLabel = document.getElementById("previewScenarioLabel");
 
   // Output containers
   const emptyState = document.getElementById("emptyState");
@@ -38,6 +41,45 @@ document.addEventListener("DOMContentLoaded", () => {
   const evidenceList = document.getElementById("evidenceList");
   const evidenceCount = document.getElementById("evidenceCount");
 
+  let previewActive = false;
+
+  function getRequestedPreviewScenario() {
+    const scenario = new URLSearchParams(window.location.search).get("preview");
+    return ["no-go", "conditional", "go"].includes(scenario) ? scenario : null;
+  }
+
+  function getPreviewLabel(scenario) {
+    if (scenario === "no-go") return "NO-GO";
+    if (scenario === "conditional") return "CONDITIONAL GO";
+    return "GO";
+  }
+
+  async function activatePreview(scenario) {
+    previewActive = true;
+    credentialAlert.classList.add("hidden");
+    previewNotice.classList.remove("hidden");
+    previewScenarioLabel.textContent = `Scenario: ${getPreviewLabel(scenario)}`;
+    btnSubmit.disabled = true;
+    btnText.textContent = "Preview mode";
+    assessmentHelp.textContent = "Synthetic preview is active; no live agent or search calls will run.";
+    emptyState.classList.add("hidden");
+    progressCard.classList.add("hidden");
+    resultDossier.classList.add("hidden");
+
+    try {
+      const response = await fetch(`/api/ui-preview/${encodeURIComponent(scenario)}`);
+      if (!response.ok) {
+        throw new Error(`Preview fixture request failed with HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      renderAssessment(data);
+    } catch (err) {
+      console.error("Preview fixture failed:", err);
+      previewScenarioLabel.textContent = "Preview fixture unavailable";
+      emptyState.classList.remove("hidden");
+    }
+  }
+
   // 1. Initial Health Check
   async function checkHealth() {
     try {
@@ -50,11 +92,19 @@ document.addEventListener("DOMContentLoaded", () => {
       updateBadge(statusBadgeParallel, data.parallel_configured, "Parallel Search · SDK");
       if (architectureModel) architectureModel.textContent = modelName;
 
-      if (data.missing_credentials && data.missing_credentials.length > 0) {
-        credentialAlert.classList.remove("hidden");
-        credentialMessage.innerHTML = `Missing credentials: <strong>${data.missing_credentials.join(", ")}</strong>. Add them to your local <code>.env</code> file to run live assessments.`;
+      const requestedPreview = getRequestedPreviewScenario();
+      if (data.ui_preview_enabled && requestedPreview) {
+        await activatePreview(requestedPreview);
       } else {
-        credentialAlert.classList.add("hidden");
+        previewActive = false;
+        previewNotice.classList.add("hidden");
+
+        if (data.missing_credentials && data.missing_credentials.length > 0) {
+          credentialAlert.classList.remove("hidden");
+          credentialMessage.innerHTML = `Missing credentials: <strong>${data.missing_credentials.join(", ")}</strong>. Add them to your local <code>.env</code> file to run live assessments.`;
+        } else {
+          credentialAlert.classList.add("hidden");
+        }
       }
     } catch (err) {
       console.warn("Health check error:", err);
@@ -87,6 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. Submit Mission Form
   missionForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    // Preview mode is intentionally isolated from the live assessment endpoint.
+    if (previewActive) return;
 
     const location = inputLocation.value.trim();
     const date = inputDate.value.trim();

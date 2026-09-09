@@ -38,9 +38,25 @@ async def health_check():
         "parallel_configured": config.has_parallel_credentials(),
         "missing_credentials": missing_creds,
         "gemini_model": config.GEMINI_MODEL,
+        "ui_preview_enabled": config.ENABLE_UI_PREVIEW,
         "orchestrator": "google-adk",
         "search_sdk": "parallel-web>=1.0.1"
     }
+
+
+@app.get("/api/ui-preview/{scenario}")
+async def ui_preview(scenario: str):
+    """Return a schema-valid synthetic assessment only when preview mode is enabled."""
+    if not config.ENABLE_UI_PREVIEW:
+        raise HTTPException(status_code=404, detail="Not found")
+
+    # Keep preview fixtures out of the normal production startup path.
+    from app.preview_fixtures import get_preview_assessment
+
+    assessment = get_preview_assessment(scenario)
+    if assessment is None:
+        raise HTTPException(status_code=404, detail="Unknown preview scenario")
+    return assessment.model_dump()
 
 
 @app.post("/api/assess")

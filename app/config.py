@@ -6,12 +6,24 @@ from dotenv import load_dotenv
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
+
+def _env_flag(name: str, default: bool = False) -> bool:
+    """Read a boolean environment flag using common truthy values."""
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
 # Configuration settings
 GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "").strip() or os.getenv("GOOGLE_API_KEY", "").strip()
 PARALLEL_API_KEY: str = os.getenv("PARALLEL_API_KEY", "").strip()
 
 # Gemini Model Selection (default: gemini-3.8-flash)
 GEMINI_MODEL: str = os.getenv("GEMINI_MODEL", "gemini-3.8-flash").strip()
+
+# Synthetic UI preview fixtures. This is configuration, not a secret.
+ENABLE_UI_PREVIEW: bool = _env_flag("ENABLE_UI_PREVIEW", False)
 
 # Server Port
 PORT: int = int(os.getenv("PORT", "8080"))
