@@ -3,6 +3,7 @@
 import unittest
 from fastapi.testclient import TestClient
 
+from app import config
 from app.main import app
 from app.models import RegulatoryFinding
 from app.agent.tools import evaluate_readiness_rules
@@ -20,7 +21,7 @@ class TestSetSignalSmoke(unittest.TestCase):
         data = response.json()
         self.assertEqual(data["status"], "healthy")
         self.assertEqual(data["orchestrator"], "google-adk")
-        self.assertEqual(data["gemini_model"], "gemini-3.8-flash")
+        self.assertEqual(data["gemini_model"], config.GEMINI_MODEL)
         self.assertIn("gemini_configured", data)
         self.assertIn("parallel_configured", data)
 
@@ -106,7 +107,7 @@ class TestSetSignalSmoke(unittest.TestCase):
         """Verify Google ADK root agent configuration and tool binding."""
         agent = create_setsignal_agent()
         self.assertEqual(agent.name, "setsignal_root_agent")
-        self.assertEqual(agent.model, "gemini-3.8-flash")
+        self.assertEqual(agent.model, config.GEMINI_MODEL)
         self.assertEqual(len(agent.tools), 2)
 
 
