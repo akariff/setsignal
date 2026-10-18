@@ -3,6 +3,8 @@
 > **AI Production-Readiness Agent for Film & Video Shoots**  
 > Built for the **Google Cloud Agentic Cinema Hackathon**
 
+> **Project status (Oct 2026):** Hackathon build complete. The public Cloud Run service has been intentionally scaled to zero after the competition to prevent unnecessary runtime/API cost. The repository is retained as a technical and portfolio reference. See [Design Notes](docs/DESIGN.md) and [Hackathon Postmortem](docs/POSTMORTEM.md).
+
 SetSignal is an autonomous production-readiness agent that evaluates upcoming film, television, and commercial shoots. Production teams describe their shoot mission (location, call time, and operational logistics such as drone flights, street closures, generator power, and crowd size). SetSignal coordinates external jurisdictional research using the **Parallel Search SDK**, grounds constraints with **Google Gemini**, applies a deterministic rules engine, and produces an evidence-backed **GO / CONDITIONAL GO / NO-GO** production clearance dossier with authentic source citations.
 
 ---
@@ -30,7 +32,7 @@ SetSignal is architected as a single full-stack service designed for frictionles
 ┌─────────────────────────────────────────────────────────────┐
 │              Google Agent Development Kit (ADK)             │
 │                   SetSignal ADK Root Agent                  │
-│               Model: Google Gemini 3.8 Flash                │
+│              Model: Gemini via GEMINI_MODEL                 │
 └───────────────────┬─────────────────────┬───────────────────┘
                     │                     │
       (Tool 1)      │                     │     (Tool 2)
@@ -58,7 +60,7 @@ SetSignal uses the **Google Agent Development Kit (`google-adk`)** as its founda
 
 1. **Root Agent Orchestration (`app/agent/adk_agent.py`)**:
    - Uses `from google.adk import Agent, Runner` and `from google.adk.sessions import InMemorySessionService`.
-   - The root agent (`setsignal_root_agent`) is configured with instructions and bound to `gemini-3.8-flash` via the official Google GenAI backend.
+   - The root agent (`setsignal_root_agent`) is configured with instructions and uses the model selected by `config.GEMINI_MODEL` via the official Google GenAI backend. The repository default is `gemini-3.8-flash`, but deployments can override it without code changes.
    - Tools are registered directly on the ADK Agent:
      - `parallel_search_tool`
      - `evaluate_readiness_rules`
